@@ -25,7 +25,7 @@ const styles = {
 const Header = () => {
   const [activeNav, setActiveNav] = useState('Swap')
   return (
-    <div className={styles.wrapper}>
+    <header className={styles.wrapper}>
       <div className={styles.headerLogo}>Muuswap</div>
       <div className={styles.nav}>
         <div className={styles.navItemsContainer}>
@@ -70,7 +70,7 @@ const Header = () => {
           </div>
         </div>
       </div>
-    </div>
+    </header>
   )
 }
 
