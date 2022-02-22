@@ -3,6 +3,16 @@ import contract from '../data/Factory.json'
 import exchangeData from '../data/Exchange.json'
 import tokenData from '../data/Token.json'
 
+let eth
+
+if (typeof window !== 'undefined') {
+  eth = window.ethereum
+}
+
+export const isMetamaskInstalled = (metamask = eth) => {
+  if (!metamask) return alert('Please install metamask extention!')
+}
+
 export const getFactoryContract = (ethProvider) => {
   const signer = getSigner(ethProvider)
   const factory = new ethers.Contract(contract.address, contract.abi, signer)
@@ -36,4 +46,12 @@ const getSigner = (ethProvider) => {
   const provider = new ethers.providers.Web3Provider(ethProvider)
   const signer = provider.getSigner()
   return signer
+}
+
+export const getAccount = async () => {
+  isMetamaskInstalled()
+  const accounts = await eth.request({
+    method: 'eth_requestAccounts',
+  })
+  return accounts[0]
 }

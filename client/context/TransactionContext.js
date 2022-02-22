@@ -1,3 +1,4 @@
+import { getAccount, isMetamaskInstalled } from '../smart_contract/lib/utils'
 import { useState, useEffect, createContext } from 'react'
 import {
   getFactoryContract,
@@ -12,30 +13,22 @@ if (typeof window !== 'undefined') {
   eth = window.ethereum
 }
 
-const isMetamaskInstalled = (metamask = eth) => {
-  if (!metamask) return alert('Please install metamask extention!')
-}
-
 export const TransactionProvider = ({ children }) => {
   const [currentAccount, setCurrentAccount] = useState()
-  //const [selectedTokenIn, setSelectedTokenIn] = useState()
-  //const [selectedTokenOut, setSelectedTokenOut] = useState()
   const [tokenPair, setTokenPair] = useState({
     in: '',
     out: '',
   })
   const [tradeSide, setTradeSide] = useState('')
   const [isCurrencyListOpen, setIsCurrencyListOpen] = useState(false)
+
   useEffect(() => {
     checkIfWalletConnected()
   }, [])
 
   const connectWallet = async (metamask = eth) => {
     try {
-      isMetamaskInstalled(metamask)
-      const [connectedAccount] = await metamask.request({
-        method: 'eth_requestAccounts',
-      })
+      const connectedAccount = getAccount()
       setCurrentAccount(connectedAccount)
     } catch (error) {
       console.error(error)
@@ -80,6 +73,7 @@ export const TransactionProvider = ({ children }) => {
   const closePanel = () => {
     setIsCurrencyListOpen(false)
   }
+
   return (
     <TransactionContext.Provider
       value={{
