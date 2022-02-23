@@ -1,10 +1,12 @@
-import { getAccount, isMetamaskInstalled } from '../smart_contract/lib/utils'
 import { useState, useEffect, createContext } from 'react'
+import { toWei, getSigner } from '../smart_contract/lib/utils'
 import {
   getFactoryContract,
   createExchange,
+  getExchange,
   getTokenContract,
-} from '../smart_contract/lib/utils'
+} from '../smart_contract/lib/contractFunctions.js'
+
 export const TransactionContext = createContext()
 
 let eth
@@ -14,7 +16,7 @@ if (typeof window !== 'undefined') {
 }
 
 export const TransactionProvider = ({ children }) => {
-  const [currentAccount, setCurrentAccount] = useState()
+  let factory
   const [tokenPair, setTokenPair] = useState({
     in: '',
     out: '',
@@ -22,52 +24,24 @@ export const TransactionProvider = ({ children }) => {
   const [tradeSide, setTradeSide] = useState('')
   const [isCurrencyListOpen, setIsCurrencyListOpen] = useState(false)
 
-  useEffect(() => {
-    checkIfWalletConnected()
-  }, [])
-
-  const connectWallet = async (metamask = eth) => {
-    try {
-      const connectedAccount = getAccount()
-      setCurrentAccount(connectedAccount)
-    } catch (error) {
-      console.error(error)
-      throw new Error('No ethereum object')
-    }
-  }
-
-  const checkIfWalletConnected = async (metamask = eth) => {
-    try {
-      isMetamaskInstalled(metamask)
-      const accounts = await metamask.request({ method: 'eth_accounts' })
-      if (accounts.length) {
-        setCurrentAccount(accounts[0])
-      }
-      const contract = getFactoryContract(metamask)
-      console.log({ contract })
-      //const exchange = await createExchange(metamask)
-      //console.log({ exchange })
-      //
-      //const token = getTokenContract(metamask)
-      //console.log({ token })
-    } catch (error) {
-      console.error(error)
-      throw new Error('No ethereum object')
-    }
-  }
-
-  // Checks if wallet is connected to the correct network
-  const checkCorrectNetwork = async () => {
-    let chainId = await ethereum.request({ method: 'eth_chainId' })
-    console.log('Connected to chain:' + chainId)
-
-    const rinkebyChainId = '0x4'
-
-    if (chainId !== rinkebyChainId) {
-      setCorrectNetwork(false)
-    } else {
-      setCorrectNetwork(true)
-    }
+  const loadBlockchainData = async (metamask = eth) => {
+    const signer = getSigner(metamask)
+    factory = getFactoryContract(signer)
+    const token = getTokenContract(
+      '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',
+      signer
+    )
+    console.log({ token })
+    const exchangeUSDT = await createExchange(
+      '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',
+      signer
+    )
+    console.log({ exchangeUSDT })
+    await token.approve(exchangeUSDT.address, toWei(20000))
+    await exchangeUSDT.addLiquidity(toWei(20000), { value: toWei(5) })
+    //
+    //const token = getTokenContract(metamask)
+    //console.log({ token })
   }
 
   const closePanel = () => {
@@ -77,8 +51,7 @@ export const TransactionProvider = ({ children }) => {
   return (
     <TransactionContext.Provider
       value={{
-        currentAccount,
-        connectWallet,
+        factory,
         isCurrencyListOpen,
         setIsCurrencyListOpen,
         tokenPair,
