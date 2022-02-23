@@ -5,8 +5,7 @@ import { HiOutlineDotsVertical } from 'react-icons/hi'
 import ethLogo from '../../assets/eth.png'
 import Image from 'next/image'
 import { styles } from './styles'
-import { TransactionContext } from '../../context/TransactionContext'
-
+import { WalletContext } from '../../context/WalletContext'
 const navItems = [
   { title: 'Swap', link: '/' },
   { title: 'Liquidity', link: '/liquidityPool' },
@@ -15,15 +14,17 @@ const navItems = [
 ]
 
 const Header = () => {
+  const { currentAccount, connectWallet } = useContext(WalletContext)
   const [activeNav, setActiveNav] = useState('Swap')
-  const { currentAccount, connectWallet } = useContext(TransactionContext)
   const [userName, setUserName] = useState()
 
   useEffect(() => {
     if (!currentAccount) return
-    setUserName(`${currentAccount.slice(0, 6)}...${currentAccount.slice(38)}`)
+    console.log('header:current account', currentAccount)
+    const account =
+      typeof currentAccount == 'string' ? currentAccount : currentAccount[0]
+    setUserName(`${account.slice(0, 6)}...${account.slice(38)}`)
   }, [currentAccount])
-  console.log(currentAccount, connectWallet)
 
   return (
     <header className={styles.wrapper}>
