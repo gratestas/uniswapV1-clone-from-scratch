@@ -1,5 +1,4 @@
 import { useState, useEffect, createContext } from 'react'
-import { getAccount } from '../smart_contract/lib/utils'
 
 export const WalletContext = createContext()
 

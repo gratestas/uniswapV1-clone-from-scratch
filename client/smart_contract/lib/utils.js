@@ -19,3 +19,8 @@ export const getSigner = (ethProvider = eth) => {
 export const toWei = (value) => ethers.utils.parseEther(value.toString())
 export const fromWei = (value) =>
   ethers.utils.formatEther(typeof value === 'string' ? value : value.toString())
+
+export const getBalance = async (address) => {
+  const provider = getProvider(eth)
+  return await provider.getBalance(address)
+}

@@ -14,14 +14,18 @@ export const getTokenContract = (tokenAddress, signer) => {
 export const createExchange = async (tokenAddress, signer) => {
   const factory = getFactoryContract(signer)
   const exchangeAddress = await factory.callStatic.createExchange(tokenAddress)
-
+  console.log(
+    'contractFunctions/createExchange: exchangeAddress: ',
+    exchangeAddress
+  )
   return new ethers.Contract(exchangeAddress, exchangeData.abi, signer)
 }
 
 export const getExchange = async (tokenAddress, signer) => {
   const factory = getFactoryContract(signer)
-  const exchangeAddress = await factory.callStatic.getExchange(tokenAddress)
 
+  const exchangeAddress = await factory.callStatic.getExchange(tokenAddress)
+  console.log('contractFunctions/getExchange: exchangeAddress', exchangeAddress)
   return new ethers.Contract(exchangeAddress, exchangeData.abi, signer)
 }
 
@@ -31,26 +35,53 @@ export const getAmountOut = async (
   tokenAddressIn,
   signer
 ) => {
-  const tokenIn = getTokenContract(tokenAddressIn, signer)
   const tokenOut = getTokenContract(tokenAddressOut, signer)
 
   const tokenSymbolOut = await tokenOut.symbol()
-  let tokenReserveIn, tokenReserveOut, exchange
+  let tokenReserveIn, tokenReserveOut, exchange, amountOut
 
   //if user buys eth ->out
   if (tokenSymbolOut === 'ETH') {
+    const tokenIn = getTokenContract(tokenAddressIn, signer)
+
     exchange = await getExchange(tokenAddressIn, signer)
 
     tokenReserveIn = await tokenIn.balanceOf(tokenAddressIn)
-    tokenReserveOut = await exchange.getReserve()
+    tokenReserveOut = await ethers.signer.getBalance(exchange.address)
+    amountOut = await exchange.ethAmountPurchased(amountIn)
+    return amountOut.toString()
   } else {
     //if user buys token ->out in exchange of ETH ->in
-    exchange = await getExchange(tokenAddressOut, signer)
 
-    tokenReserveIn = await exchange.getReserve()
-    tokenReserveOut = await tokenOut.balanceOf(tokenAddressOut)
+    //exchange = await getExchange(tokenAddressOut, signer)
+    //console.log('contractFunction/getAmount(): exchange of token out', exchange)
+    //
+    //amountOut = await exchange.tokenAmountPurchased(amountIn)
+    //console.log(
+    //  'contractFunction/getAmount(): tokenAmountPurchased',
+    //  amountOut.toString()
+    //)
+    const amountOut = 2 * amountIn
+    return amountOut
+
+    //console.log(
+    //  'contractFunction/getAmount(): tokenAmountPurchased',
+    //  tokenAmountOut.toString()
+    //)
+    ////reserve of token
+    //tokenReserveOut = await exchange.getReserve()
+    //console.log(
+    //  'contractFunction/getAmount(): reserve of token out',
+    //  tokenReserveOut.toString()
+    //)
+    ////reserve of ETH
+    //tokenReserveIn = await exchange.getReserve()
+    //console.log(
+    //  'contractFunction/getAmount(): reserve of token in',
+    //  tokenReserveIn.toString()
+    //)
   }
-  return await exchange.getAmount(amountIn, tokenReserveIn, tokenReserveOut)
+  //return await exchange.getAmount(amountIn, tokenReserveIn, tokenReserveOut)
 }
 
 export const swapTokens = async (amountIn, tokenPair, signer) => {
@@ -79,4 +110,8 @@ export const swapTokens = async (amountIn, tokenPair, signer) => {
   } else {
     //tokenToTokenSwap
   }
+}
+
+const isString = (value) => {
+  return typeof value === 'string' || value instanceof String
 }
