@@ -6,13 +6,18 @@ import { TransactionContext } from '../../context/TransactionContext'
 import { styles } from './styles'
 import ethLogo from '../../assets/eth.png'
 
-const CurrencySelectButton = ({ selectedToken, tradeSide }) => {
+const CurrencySelectButton = ({
+  selectedToken,
+  tradeSide,
+  disabled = false,
+}) => {
   const { setIsCurrencyListOpen, setTradeSide } = useContext(TransactionContext)
 
   return (
     <div
-      className={styles.currencySelector}
+      className={`${styles.currencySelector} ${disabled && 'w-1/4'}`}
       onClick={() => {
+        if (disabled) return
         setIsCurrencyListOpen(true)
         setTradeSide(tradeSide)
       }}
@@ -29,7 +34,9 @@ const CurrencySelectButton = ({ selectedToken, tradeSide }) => {
         <div className={styles.currencySelectorTicker}>
           {selectedToken ? selectedToken.symbol : 'ETH'}
         </div>
-        <AiOutlineDown className={styles.currencySelectorArrow} />
+        {!disabled && (
+          <AiOutlineDown className={styles.currencySelectorArrow} />
+        )}
       </div>
     </div>
   )
