@@ -1,4 +1,4 @@
-import { ethers } from 'ethers'
+import { providers, utils } from 'ethers'
 
 let eth
 
@@ -7,7 +7,7 @@ if (typeof window !== 'undefined') {
 }
 
 const getProvider = (ethProvider = eth) => {
-  return new ethers.providers.Web3Provider(ethProvider)
+  return new providers.Web3Provider(ethProvider)
 }
 
 export const getSigner = (ethProvider = eth) => {
@@ -16,9 +16,9 @@ export const getSigner = (ethProvider = eth) => {
   return provider.getSigner()
 }
 
-export const toWei = (value) => ethers.utils.parseEther(value.toString())
+export const toWei = (value) => utils.parseEther(value.toString())
 export const fromWei = (value) =>
-  ethers.utils.formatEther(typeof value === 'string' ? value : value.toString())
+  utils.formatEther(typeof value === 'string' ? value : value.toString())
 
 export const getBalance = async (address) => {
   const provider = getProvider(eth)
