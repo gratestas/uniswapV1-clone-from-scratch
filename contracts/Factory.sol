@@ -24,4 +24,12 @@ contract Factory {
     function getExchange(address _tokenAddress) public view returns (address) {
         return tokenToExchange[_tokenAddress];
     }
+
+    function doesExchangeExist(address _tokenAddress)
+        public
+        view
+        returns (bool)
+    {
+        return tokenToExchange[_tokenAddress] != address(0);
+    }
 }
