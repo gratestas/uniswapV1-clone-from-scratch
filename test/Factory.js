@@ -46,6 +46,13 @@ describe("Factory", () => {
       expect(await exchange.factoryAddress()).to.equal(factory.address);
     });
 
+    it("returns true if exchange already exists", async () => {
+      await factory.createExchange(token.address);
+
+      const doesExchangeExist = await factory.doesExchangeExist(token.address);
+      expect(doesExchangeExist).to.equal(true);
+    });
+
     it("should fail when exchange already exists", async () => {
       await factory.createExchange(token.address);
       await expect(factory.createExchange(token.address)).to.be.revertedWith(
@@ -65,7 +72,8 @@ describe("Factory", () => {
           token.address
         );
         await factory.createExchange(token.address);
-
+        const exchange = await factory.getExchange(token.address);
+        console.log("exchange", exchange);
         expect(await factory.getExchange(token.address)).to.equal(
           exchangeAddress
         );

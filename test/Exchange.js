@@ -20,7 +20,7 @@ const createExchange = async (factory, tokenAddress, sender) => {
 
   const Exchange = await ethers.getContractFactory("Exchange");
 
-  return await Exchange.attach(exchangeAddress);
+  return Exchange.attach(exchangeAddress);
 };
 
 describe("Exchange", () => {
@@ -129,9 +129,16 @@ describe("Exchange", () => {
       const userEthBalanceBefore = await getBalance(user.address);
 
       // A user swaps 10 ethers and expects to get at least 18 tokens in exchange
+      const tokensOut = fromWei(await exchange.tokenAmountPurchased(toWei(10)));
+      const slippage = 0.99;
+      console.log(
+        "token amount out in exchange of 10 ethers",
+        tokensOut.toString()
+      );
+      const tokensOut_min = tokensOut * slippage;
       await exchange
         .connect(user)
-        .ethToTokenSwap(toWei(18), { value: toWei(10) });
+        .ethToTokenSwap(toWei(tokensOut_min), { value: toWei(10) });
 
       const userEthBalanceAfter = await getBalance(user.address);
       const actualDifference = fromWei(
@@ -144,8 +151,8 @@ describe("Exchange", () => {
       const userTokenBalance = await token.balanceOf(user.address);
       expect(fromWei(userTokenBalance)).to.eq("18.01637852593266606");
 
-      const userEtherBalanceBefore = await getBalance(owner.address);
-      const userTokenBalanceBefore = await token.balanceOf(owner.address);
+      const ownerEtherBalanceBefore = await getBalance(owner.address);
+      const ownerTokenBalanceBefore = await token.balanceOf(owner.address);
 
       // Liquidity provider then removes the liquidity
       await exchange.removeLiquidity(toWei(100));
@@ -153,15 +160,15 @@ describe("Exchange", () => {
       expect(await exchange.getReserve()).to.equal(toWei(0));
       expect(await getBalance(exchange.address)).to.equal(toWei(0));
 
-      const userEtherBalanceAfter = await getBalance(owner.address);
-      const userTokenBalanceAfter = await token.balanceOf(owner.address);
+      const ownerEtherBalanceAfter = await getBalance(owner.address);
+      const ownerTokenBalanceAfter = await token.balanceOf(owner.address);
 
       expect(
-        fromWei(userEtherBalanceAfter.sub(userEtherBalanceBefore))
-      ).to.equal("109.999948428332878668");
+        fromWei(ownerEtherBalanceAfter.sub(ownerEtherBalanceBefore))
+      ).to.equal("109.999948428332725665");
 
       expect(
-        fromWei(userTokenBalanceAfter.sub(userTokenBalanceBefore))
+        fromWei(ownerTokenBalanceAfter.sub(ownerTokenBalanceBefore))
       ).to.equal("181.98362147406733394");
     });
   });
@@ -244,7 +251,7 @@ describe("Exchange", () => {
       const userBalanceAfter = await getBalance(user.address);
 
       expect(fromWei(userBalanceBefore - userBalanceAfter)).to.equal(
-        "1.0000637030112952"
+        "1.0000637030133924"
       );
 
       const userTokenBalance = await token.balanceOf(user.address);
@@ -280,7 +287,7 @@ describe("Exchange", () => {
       const userBalanceAfter = await getBalance(user.address);
 
       expect(fromWei(userBalanceAfter - userBalanceBefore)).to.equal(
-        "0.19410376682215834"
+        "0.1941037668200612"
       );
 
       const userTokenBalance = await token.balanceOf(user.address);
@@ -349,6 +356,15 @@ describe("Exchange", () => {
 
       const exchange1 = await createExchange(factory, token1.address, owner);
       const exchange2 = await createExchange(factory, token2.address, user);
+
+      console.log(
+        "exchange1 reserve:",
+        (await exchange1.getReserve()).toString()
+      );
+      console.log(
+        "exchange2 reserve:",
+        (await exchange2.getReserve()).toString()
+      );
 
       await token1.approve(exchange1.address, toWei(2000));
       await exchange1.addLiquidity(toWei(2000), { value: toWei(1000) });
