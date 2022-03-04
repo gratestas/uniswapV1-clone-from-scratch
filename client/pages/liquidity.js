@@ -59,7 +59,7 @@ const LiquidityPool = () => {
         await createExchange(tokenPair.in.address, signer)
       }
     } catch (error) {
-      consolo.log(error.message)
+      console.log(error.message)
     }
     await addLiquidity(
       tokenPair.in.address,
@@ -80,11 +80,11 @@ const LiquidityPool = () => {
     const exchange = await getExchange(tokenPair.in.address, signer)
 
     const tokenReserve = await exchange.getReserve()
-    const formattedTokenReserve = formatPrecision(fromWei(tokenReserve))
+    const formattedTokenReserve = formatPrecision(fromWei(tokenReserve), 6)
     setTokenReserve(formattedTokenReserve)
 
     const ethRerserve = await getBalance(exchange.address)
-    const formattedEthReserve = formatPrecision(fromWei(ethRerserve))
+    const formattedEthReserve = formatPrecision(fromWei(ethRerserve), 4)
     setEthReserve(formattedEthReserve)
 
     await fetchLPTokensAndPoolShare(tokenPair.in.address, currentAccount)
