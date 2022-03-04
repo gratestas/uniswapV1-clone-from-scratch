@@ -4,8 +4,8 @@ import Header from '../../Header/index.jsx'
 import Overlay from '../Overlay'
 
 const styles = {
-  wrapper: `h-screen max-h-screen h-min-screen w-screen bg-[#2D242F] text-white select-none flex flex-col justify-start`,
-  wrapperInner: `w-full h-full h-min-full  flex items-center justify-center mt-18`,
+  wrapper: `min-h-screen w-screen bg-[#2D242F] text-white select-none flex flex-col justify-start`,
+  wrapperInner: `w-full h-full h-min-full  flex items-center justify-center mt-24`,
 }
 
 const Layout = ({ children }) => {
