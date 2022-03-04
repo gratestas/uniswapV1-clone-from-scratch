@@ -6,10 +6,6 @@ import { styles } from './styles'
 import SwapForm from '../Form/index.jsx'
 
 const SwapPanel = () => {
-  const swap = async () => {
-    await SwapToken('tokenAddress1', 'tokenAddress2', 'fieldValue')
-  }
-
   return (
     <div className={styles.swapForm}>
       <CurrencyListModal />
