@@ -9,7 +9,7 @@ import { WalletContext } from '../../context/WalletContext'
 const navItems = [
   { title: 'Swap', link: '/' },
   { title: 'Liquidity', link: '/liquidityPool' },
-  { title: 'Pools', link: '/' },
+  { title: 'Pools', link: '/pools' },
   { title: 'Charts', link: '/' },
 ]
 
