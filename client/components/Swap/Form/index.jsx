@@ -8,14 +8,7 @@ import {
 import { fromWei, getSigner, toWei } from '../../../smart_contract/lib/utils'
 import CurrencySelectButton from '../../CurrencySelectButton'
 
-const styles = {
-  inputContainer: `bg-[#20242A] my-3 rounded-2xl p-6 text-3xl  border border-[#20242A] hover:border-[#41444F]  flex justify-between`,
-  input: `bg-transparent placeholder:text-[#B2B9D2] outline-none mb-6 w-full text-2xl`,
-  switchContainer: `flex justify-center cursor-pointer`,
-  switchIcon: `w-8 h-8 rounded-lg border border-[#20242A] hover:border-[#41444F] flex justify-center items-center`,
-  confirmButton: `bg-[#2172E5] my-2 rounded-2xl py-6 px-8 text-xl font-semibold flex items-center justify-center cursor-pointer border border-[#2172E5] hover:border-[#234169]`,
-}
-
+import { styles } from './styles'
 let eth
 
 if (typeof window !== 'undefined') {
@@ -65,7 +58,6 @@ const SwapForm = () => {
           className={styles.input}
           placeholder="0.0"
           pattern="^[+]?([0-9]+(?:[\.][0-9]*)?|\.[0-9]+)$"
-          //onChange={(e) => handleChange(e, 'amount')}
           onChange={(e) => handleChange(e)}
         />
         <CurrencySelectButton selectedToken={tokenPair.in} tradeSide="in" />
@@ -83,8 +75,6 @@ const SwapForm = () => {
           placeholder="0.0"
           disabled
           pattern="^[+]?([0-9]+(?:[\.][0-9]*)?|\.[0-9]+)$"
-          //onChange={(e) => handleChange(e, 'amount')}
-          //onChange={(e) => handleChange(e)}
         />
         <CurrencySelectButton selectedToken={tokenPair.out} tradeSide="out" />
       </div>
