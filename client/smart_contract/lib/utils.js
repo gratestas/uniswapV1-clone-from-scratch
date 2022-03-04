@@ -24,3 +24,8 @@ export const getBalance = async (address) => {
   const provider = getProvider(eth)
   return await provider.getBalance(address)
 }
+
+export const formatPrecision = (value, decimal = 7) => {
+  const numberValue = Number(value).toPrecision(decimal)
+  return numberValue.toString()
+}
