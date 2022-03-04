@@ -8,7 +8,7 @@ import { styles } from './styles'
 import { WalletContext } from '../../context/WalletContext'
 const navItems = [
   { title: 'Swap', link: '/' },
-  { title: 'Liquidity', link: '/liquidityPool' },
+  { title: 'Liquidity', link: '/liquidity' },
   { title: 'Pools', link: '/pools' },
   { title: 'Charts', link: '/' },
 ]
