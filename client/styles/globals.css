@@ -3,6 +3,9 @@
 @tailwind utilities;
 
 @layer base {
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+  }
   input[type='number']::-webkit-outer-spin-button,
   input[type='number']::-webkit-inner-spin-button {
     -webkit-appearance: none;
