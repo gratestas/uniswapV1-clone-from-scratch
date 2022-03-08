@@ -2,6 +2,8 @@ import { Contract } from 'ethers'
 import contract from '../data/Factory.json'
 import exchangeData from '../data/Exchange.json'
 import ERC20 from '../data/Token.json'
+import tokens from './constants/tokens'
+import { formatUnits, parseUnits, fromWei, toWei } from './utils'
 
 const NULL_ADDRESS = '0x0000000000000000000000000000000000000000'
 
@@ -17,7 +19,10 @@ export const createExchange = async (tokenAddress, signer) => {
   const factory = getFactoryContract(signer)
   console.log('contractFunctions/createExchange: creating a new exchange')
 
-  if (factory.doesExchangeExist(tokenAddress)) return
+  const doesExchangeExist = await factory.doesExchangeExist(tokenAddress)
+  console.log({ doesExchangeExist })
+
+  if (await factory.doesExchangeExist(tokenAddress)) return
   await factory.createExchange(tokenAddress)
 }
 
@@ -52,62 +57,64 @@ export const getAmountOut = async (
   tokenAddressOut,
   signer
 ) => {
-  let token, tokenSymbolOut, exchange, amountOut
-
+  let token, tokenSymbolIn, tokenSymbolOut, exchangeIn, exchangeOut, amountOut
+  const slippage = 0.99
   if (tokenAddressIn === '') {
     token = getTokenContract(tokenAddressOut, signer)
     tokenSymbolOut = await token.symbol()
-  } else {
-    tokenSymbolOut = 'ETH'
+    tokenSymbolIn = 'ETH'
   }
+
+  if (tokenAddressOut === '') {
+    tokenSymbolOut = 'ETH'
+    token = getTokenContract(tokenAddressIn, signer)
+    tokenSymbolIn = await token.symbol()
+  }
+
   console.log({ tokenSymbolOut })
+  console.log({ amountIn })
 
   //if user buys eth ->out
   if (tokenSymbolOut === 'ETH') {
-    exchange = await getExchange(tokenAddressIn, signer)
+    exchangeIn = await getExchange(tokenAddressIn, signer)
     console.log({ tokenAddressIn })
-    amountOut = await exchange.callStatic.ethAmountPurchased(amountIn)
-    return amountOut
-  } else {
+    amountOut = await exchangeIn.ethAmountPurchased(amountIn)
+    console.log('contractFunctions: amountOut', fromWei(amountOut))
+
+    return fromWei(amountOut) * slippage
+  } else if (tokenSymbolIn === 'ETH') {
     //if user buys token ->out in exchange of ETH ->in
+    exchangeOut = await getExchange(tokenAddressOut, signer)
+    amountOut = await exchangeOut.tokenAmountPurchased(amountIn)
+    console.log('contractFunction: amountOut', fromWei(amountOut.toString()))
+    return fromWei(amountOut) * slippage
+  } else {
+    console.log('swapping token-2-token ...')
+    token = getTokenContract(tokenAddressIn, signer)
+    const decimals = await token.decimals()
+    exchangeIn = await getExchange(tokenAddressIn, signer)
+    const ethAmountOut = await exchangeIn.ethAmountPurchased(amountIn)
+    const ethAmountIn_min = ethAmountOut
+    console.log('ethAmountIn_min', ethAmountIn_min.toString())
 
-    exchange = await getExchange(tokenAddressOut, signer)
-
-    amountOut = await exchange.callStatic.tokenAmountPurchased(amountIn)
-    //const amountOut = 2 * amountIn
-    return amountOut
-
-    //console.log(
-    //  'contractFunction/getAmount(): tokenAmountPurchased',
-    //  tokenAmountOut.toString()
-    //)
-    ////reserve of token
-    //tokenReserveOut = await exchange.getReserve()
-    //console.log(
-    //  'contractFunction/getAmount(): reserve of token out',
-    //  tokenReserveOut.toString()
-    //)
-    ////reserve of ETH
-    //tokenReserveIn = await exchange.getReserve()
-    //console.log(
-    //  'contractFunction/getAmount(): reserve of token in',
-    //  tokenReserveIn.toString()
-    //)
+    exchangeOut = await getExchange(tokenAddressOut, signer)
+    amountOut = await exchangeOut.tokenAmountPurchased(ethAmountIn_min)
+    return formatUnits(amountOut, decimals) * slippage
   }
-  //return await exchange.getAmount(amountIn, tokenReserveIn, tokenReserveOut)
 }
 
 export const swapTokens = async (amountIn, tokenPair, signer) => {
-  let exchange
+  console.log('in swapTokens')
+  let token, exchange, minTokenOut
   const tokenAddressIn = tokenPair.in.address
   const tokenAddressOut = tokenPair.out.address
 
   if (tokenPair.in.symbol === 'ETH') {
     exchange = await getExchange(tokenAddressOut, signer)
+
     try {
       console.log(`Swapping ${amountIn} ETH for tokens...`)
-      //TODO:amountIn must be eth amount coming from input field
-      const minTokenOut = await exchange.tokenAmountPurchased(amountIn)
+      minTokenOut = await exchange.tokenAmountPurchased(amountIn)
       console.log(
         'contractFunctions/swapTokens: minTokensOut',
         minTokenOut.toString()
@@ -119,12 +126,10 @@ export const swapTokens = async (amountIn, tokenPair, signer) => {
   } else if (tokenPair.out.symbol === 'ETH') {
     exchange = await getExchange(tokenAddressIn, signer)
     try {
-      //TODO:amountIn must be token amount coming from input field
       console.log(
         `Swapping ${amountIn} ${tokenPair.in.symbol} for ${tokenPair.out.symbol}...`
       )
-      const token = await getTokenContract(tokenPair.in.address, signer)
-      const minTokenOut = await exchange.ethAmountPurchased(amountIn)
+      minTokenOut = await exchange.ethAmountPurchased(amountIn)
 
       await token.approve(exchange.address, amountIn)
       await exchange.tokenToEthSwap(amountIn, minTokenOut)
@@ -132,7 +137,23 @@ export const swapTokens = async (amountIn, tokenPair, signer) => {
       console.log(error)
     }
   } else {
-    //tokenToTokenSwap
+    token = getTokenContract(tokenAddressOut, signer)
+    const decimals = await token.decimals()
+    exchange = await getExchange(tokenPair.in.address, signer)
+
+    await token.approve(exchange.address, amountIn)
+    minTokenOut = await getAmountOut(
+      amountIn,
+      tokenAddressIn,
+      tokenAddressOut,
+      signer
+    )
+    console.log({ minTokenOut })
+    await exchange.tokenToTokenSwap(
+      amountIn,
+      parseUnits(minTokenOut, decimals),
+      tokenAddressOut
+    )
   }
 }
 
@@ -149,6 +170,12 @@ export const addLiquidity = async (
   return await exchange.addLiquidity(tokenAmount, {
     value: ethAmount,
   })
+}
+
+export const removeLiquidity = async (tokenAddress, LPtokens, signer) => {
+  const exchange = await getExchange(tokenAddress, signer)
+  //TODO: remove liquidty returns amounts of eth and token. these values can be used to notify user how much he get back in terms of two tokens
+  await exchange.removeLiquidity(LPtokens)
 }
 
 const isString = (value) => {

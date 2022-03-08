@@ -5,9 +5,12 @@ import LiquidityPosition from '../components/Liquidity/LiquidityPosition'
 import { TransactionContext } from '../context/TransactionContext'
 import { WalletContext } from '../context/WalletContext'
 import { getLPTokensAndPoolShare } from '../smart_contract/lib/liquidity'
+import tokens from '../smart_contract/lib/constants/tokens'
 import {
   addLiquidity,
   getExchange,
+  createExchange,
+  removeLiquidity,
 } from '../smart_contract/lib/contractFunctions'
 import {
   fromWei,
@@ -23,22 +26,21 @@ const LiquidityPool = () => {
   const { currentAccount } = useContext(WalletContext)
   const [input, setInput] = useState('')
   const [output, setOutput] = useState('')
-  const [tokenReserve, setTokenReserve] = useState()
-  const [ethReserve, setEthReserve] = useState()
-  const [LPtokens, setLPtokens] = useState(null)
+  const [tokenReserve, setTokenReserve] = useState('')
+  const [ethReserve, setEthReserve] = useState('')
+  const [LPtokens, setLPTokens] = useState(0)
   const [poolShare, setPoolShare] = useState(0)
-  console.log(' currentAccount', currentAccount)
 
   const fetchLPTokensAndPoolShare = async (tokenAddress, currentAccount) => {
     const [LP_tokens, poolShare] = await getLPTokensAndPoolShare(
       tokenAddress,
       currentAccount
     )
-    setLPtokens(LP_tokens)
+    setLPTokens(LP_tokens)
     setPoolShare(poolShare)
   }
 
-  const handleSubmit = async () => {
+  const addLiquidityHandler = async () => {
     const signer = getSigner(window.ethereum)
     try {
       if (!(await factory.doesExchangeExist(tokenPair.in.address))) {
@@ -47,9 +49,11 @@ const LiquidityPool = () => {
         )
         await createExchange(tokenPair.in.address, signer)
       }
+      console.log('exchange already exists')
     } catch (error) {
       console.log(error.message)
     }
+    console.log('adding liquidity...')
     await addLiquidity(
       tokenPair.in.address,
       toWei(Number(input)),
@@ -58,30 +62,42 @@ const LiquidityPool = () => {
     )
 
     await fetchLPTokensAndPoolShare(tokenPair.in.address, currentAccount)
-
-    console.log('your share in pool:', poolShare)
+  }
+  const removeLuqidityHandler = async () => {
+    if (!LPtokens) return
+    const signer = getSigner()
+    console.log('removing liquidity...')
+    await removeLiquidity(tokenPair.in.address, toWei(LPtokens), signer)
+    console.log('liquidity has been removed')
+    await fetchLPTokensAndPoolShare(tokenPair.in.address, currentAccount)
   }
 
   useEffect(async () => {
-    if (!tokenPair.in) return
+    console.log('token in', tokenPair.in)
+    if (!tokenPair.in || tokenPair.in.symbol === 'ETH') return
+    if (await factory.doesExchangeExist(tokenPair.in.address)) {
+      const signer = getSigner(window.ethereum)
+      const exchange = await getExchange(tokenPair.in.address, signer)
 
-    const signer = getSigner(window.ethereum)
-    const exchange = await getExchange(tokenPair.in.address, signer)
+      const tokenReserve = await exchange.getReserve()
+      const formattedTokenReserve = formatPrecision(fromWei(tokenReserve), 2)
+      setTokenReserve(formattedTokenReserve)
 
-    const tokenReserve = await exchange.getReserve()
-    const formattedTokenReserve = formatPrecision(fromWei(tokenReserve), 6)
-    setTokenReserve(formattedTokenReserve)
+      const ethRerserve = await getBalance(exchange.address)
+      const formattedEthReserve = formatPrecision(fromWei(ethRerserve), 2)
+      setEthReserve(formattedEthReserve)
 
-    const ethRerserve = await getBalance(exchange.address)
-    const formattedEthReserve = formatPrecision(fromWei(ethRerserve), 4)
-    setEthReserve(formattedEthReserve)
+      await fetchLPTokensAndPoolShare(tokenPair.in.address, currentAccount)
+    } else {
+      setLPTokens(0)
+      setTokenReserve('')
+      setEthReserve('')
+    }
+  }, [tokenPair.in, currentAccount])
 
-    await fetchLPTokensAndPoolShare(tokenPair.in.address, currentAccount)
-  }, [tokenPair.in.address, currentAccount])
-
-  //useEffect(() => {
-  //  setTokenPair({ in: '', out: '' })
-  //}, [])
+  useEffect(() => {
+    setTokenPair(() => ({ in: '', out: '' }))
+  }, [])
   return (
     <div className={styles.wrapper}>
       <CurrencyListModal />
@@ -119,17 +135,14 @@ const LiquidityPool = () => {
           </div>
           <div className={styles.liquidityContainer}>
             <div className={styles.fieldTitle}>Pool Liquidity</div>
-            <div className={styles.reserves}>
-              <div className="mb-1 tracking-wider">
+            <div className={styles.reservesContainer}>
+              <div className={styles.reserve}>
                 {tokenReserve} &nbsp; {tokenPair.in.symbol}
               </div>
-              <div className="tracking-wider">{ethReserve} &nbsp; ETH</div>
+              <div className={styles.reserve}>{ethReserve} &nbsp; ETH</div>
             </div>
           </div>
-          <div
-            className={styles.confirmButton}
-            onClick={(e) => handleSubmit(e)}
-          >
+          <div className={styles.confirmButton} onClick={addLiquidityHandler}>
             Supply
           </div>
         </div>
@@ -138,6 +151,7 @@ const LiquidityPool = () => {
         token={tokenPair.in}
         LPtokens={LPtokens}
         poolShare={poolShare}
+        removeLuqidityHandler={removeLuqidityHandler}
       />
     </div>
   )
