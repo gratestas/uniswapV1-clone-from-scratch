@@ -21,9 +21,7 @@ const Header = () => {
   useEffect(() => {
     if (!currentAccount) return
     console.log('header:current account', currentAccount)
-    const account =
-      typeof currentAccount == 'string' ? currentAccount : currentAccount[0]
-    setUserName(`${account.slice(0, 6)}...${account.slice(38)}`)
+    setUserName(`${currentAccount.slice(0, 6)}...${currentAccount.slice(38)}`)
   }, [currentAccount])
 
   return (

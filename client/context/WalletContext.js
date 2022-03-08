@@ -45,8 +45,8 @@ export const WalletProvider = ({ children }) => {
   }
 
   const handleAccountChanged = async (newAccount) => {
-    setCurrentAccount(newAccount)
-    console.log('account changed to:', currentAccount)
+    const account = newAccount[0]
+    setCurrentAccount(account)
   }
 
   // Checks if wallet is connected to the correct network
