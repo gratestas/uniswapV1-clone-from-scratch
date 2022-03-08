@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import ethLogo from '../../assets/eth.png'
+import { formatPrecision } from '../../smart_contract/lib/utils'
 import { styles } from './styles'
 
 const theadItems = ['Pool', 'TVL', 'Volume 24H', 'Volume 7D']
@@ -37,7 +38,7 @@ const PoolTable = ({ poolsData }) => {
                   </div>
                 </td>
                 <td scope="col" className={styles.tbody_item}>
-                  {pool.liquidity} ETH
+                  {formatPrecision(pool.liquidity, 3)} ETH
                 </td>
                 <td scope="col" className={styles.tbody_item}>
                   $--
