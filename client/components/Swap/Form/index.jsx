@@ -5,7 +5,12 @@ import {
   getAmountOut,
   swapTokens,
 } from '../../../smart_contract/lib/contractFunctions'
-import { fromWei, getSigner, toWei } from '../../../smart_contract/lib/utils'
+import {
+  fromWei,
+  getSigner,
+  toWei,
+  formatPrecision,
+} from '../../../smart_contract/lib/utils'
 import CurrencySelectButton from '../../CurrencySelectButton'
 
 import { styles } from './styles'
@@ -26,23 +31,24 @@ const SwapForm = () => {
     })
   }
   const handleChange = async (e) => {
+    if (!Number(input.value)) return
     console.log(input.value)
     const signer = getSigner(eth)
+    console.log('handleChange', input.value)
+    console.log('handleChange toWei', toWei(input.value).toString())
     const amountOut = await getAmountOut(
-      toWei(Number(input.value)),
+      toWei(input.value),
       tokenPair.in.address,
       tokenPair.out.address,
       signer
     )
-    console.log('amountOut', fromWei(amountOut).toString())
-
-    setOutput(fromWei(amountOut))
+    setOutput(formatPrecision(amountOut, 4))
   }
 
   const handleSubmit = async () => {
     const signer = getSigner(eth)
     console.log('handleSubmit: amount in:', input.value)
-    await swapTokens(toWei(Number(input.value)), tokenPair, signer)
+    await swapTokens(toWei(input.value), tokenPair, signer)
     console.log('transaction sucessfully completed')
     setInput({ value: 0 })
     setOutput('0.0')
