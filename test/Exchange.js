@@ -377,7 +377,30 @@ describe("Exchange", () => {
       expect(await token2.balanceOf(owner.address)).to.eq(0);
 
       await token1.approve(exchange1.address, toWei(10));
-      await exchange1.tokenToTokenSwap(toWei(10), toWei(4.8), token2.address);
+      const ethInExchange2 = fromWei(
+        await exchange1.ethAmountPurchased(toWei(10))
+      );
+      const slippage = 0.99;
+      console.log(
+        "ether amount out of exchange1 that will be passed to exchange2",
+        ethInExchange2.toString()
+      );
+      const ethInExchange2_min = ethInExchange2 * slippage;
+
+      const tokensOutExchange2 = fromWei(
+        await exchange2.tokenAmountPurchased(toWei(ethInExchange2_min))
+      );
+      console.log(
+        "token amount out of exchange2 in exchange of ether amount out of exchange1",
+        tokensOutExchange2.toString()
+      );
+      const tokensOutExchange2_min = tokensOutExchange2 * slippage;
+
+      await exchange1.tokenToTokenSwap(
+        toWei(10),
+        toWei(tokensOutExchange2_min),
+        token2.address
+      );
 
       const ownerBalance = await token2.balanceOf(owner.address);
       expect(fromWei(ownerBalance)).to.eq("4.852698493489877956");
