@@ -16,7 +16,7 @@ const Pools = () => {
     <div className="flex flex-col items-center space-y-5">
       <div className="flex w-full justify-end">
         <div className=" divide-x rounded-md bg-[#191B1F] py-2 px-4 font-medium tracking-wide text-[#f0a912] hover:bg-[#113f83] hover:text-white">
-          <Link href="liquidityPool">
+          <Link href="liquidity">
             <a>new pool</a>
           </Link>
         </div>
