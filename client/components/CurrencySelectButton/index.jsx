@@ -22,22 +22,29 @@ const CurrencySelectButton = ({
         setTradeSide(tradeSide)
       }}
     >
-      <div className={styles.currencySelectorContent}>
-        <div className={styles.currencySelectorIcon}>
-          <Image
-            src={selectedToken ? selectedToken.icon : ethLogo}
-            alt={selectedToken ? selectedToken.symbol : 'ETH'}
-            height="30"
-            width="30"
-          />
+      {selectedToken || disabled ? (
+        <div className={styles.currencySelectorContent}>
+          <div className={styles.currencySelectorIcon}>
+            <Image
+              src={selectedToken ? selectedToken.icon : ethLogo}
+              alt={selectedToken ? selectedToken.symbol : 'ETH'}
+              height="30"
+              width="30"
+            />
+          </div>
+          <div className={styles.currencySelectorTicker}>
+            {selectedToken ? selectedToken.symbol : 'ETH'}
+          </div>
+          {!disabled && (
+            <AiOutlineDown className={styles.currencySelectorArrow} />
+          )}
         </div>
-        <div className={styles.currencySelectorTicker}>
-          {selectedToken ? selectedToken.symbol : 'ETH'}
-        </div>
-        {!disabled && (
+      ) : (
+        <div className={`${styles.currencySelectorContent} w-[11rem] `}>
+          <div className="ml-1 ">Select Token</div>
           <AiOutlineDown className={styles.currencySelectorArrow} />
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
