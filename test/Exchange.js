@@ -243,10 +243,11 @@ describe("Exchange", () => {
     it("transfers at least min amount of tokens ", async () => {
       //user's balance of ether before swap transaction
       const userBalanceBefore = await getBalance(user.address);
-      await exchange
+      const txResponse = await exchange
         .connect(user)
         .ethToTokenSwap(toWei(45), { value: toWei(1) });
-
+      const txReceipt = await txResponse.wait();
+      console.log(txReceipt.events);
       //user's balance of ether after swap transaction
       const userBalanceAfter = await getBalance(user.address);
 
@@ -277,15 +278,20 @@ describe("Exchange", () => {
       await token.connect(user).approve(exchange.address, toWei(10));
 
       await token.approve(exchange.address, toWei(500));
-      await exchange.addLiquidity(toWei(500), { value: toWei(10) });
+      await exchange.addLiquidity(toWei(500), {
+        value: toWei(10),
+      });
     });
     it("transfers at least min amount of ether", async () => {
       const userBalanceBefore = await getBalance(user.address);
 
-      await exchange.connect(user).tokenToEthSwap(toWei(10), toWei(0.19));
-
+      const tx = await exchange
+        .connect(user)
+        .tokenToEthSwap(toWei(10), toWei(0.19));
       const userBalanceAfter = await getBalance(user.address);
-
+      const receipt = await tx.wait();
+      console.log("exchange address", await exchange.address);
+      console.log("event agrs", receipt.events[2].args);
       expect(fromWei(userBalanceAfter - userBalanceBefore)).to.equal(
         "0.1941037668200612"
       );
@@ -396,11 +402,13 @@ describe("Exchange", () => {
       );
       const tokensOutExchange2_min = tokensOutExchange2 * slippage;
 
-      await exchange1.tokenToTokenSwap(
+      const txResponse = await exchange1.tokenToTokenSwap(
         toWei(10),
         toWei(tokensOutExchange2_min),
         token2.address
       );
+      const txReceipt = await txResponse.wait();
+      console.log(txReceipt.events);
 
       const ownerBalance = await token2.balanceOf(owner.address);
       expect(fromWei(ownerBalance)).to.eq("4.852698493489877956");
