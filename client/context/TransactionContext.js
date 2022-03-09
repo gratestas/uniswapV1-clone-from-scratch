@@ -1,16 +1,8 @@
 import { useState, useEffect, createContext } from 'react'
-import {
-  toWei,
-  fromWei,
-  getSigner,
-  getBalance,
-} from '../smart_contract/lib/utils'
-import {
-  getFactoryContract,
-  createExchange,
-  getExchange,
-  getTokenContract,
-} from '../smart_contract/lib/contractFunctions.js'
+import { getSigner } from '../smart_contract/lib/utils'
+import { getFactoryContract } from '../smart_contract/lib/contractFunctions.js'
+
+import ethLogo from '../assets/eth.png'
 
 export const TransactionContext = createContext()
 

@@ -14,7 +14,7 @@ import {
 } from '../smart_contract/lib/contractFunctions'
 import {
   fromWei,
-  getBalance,
+  getEthBalance,
   getSigner,
   toWei,
   formatPrecision,
@@ -83,7 +83,7 @@ const LiquidityPool = () => {
       const formattedTokenReserve = formatPrecision(fromWei(tokenReserve), 2)
       setTokenReserve(formattedTokenReserve)
 
-      const ethRerserve = await getBalance(exchange.address)
+      const ethRerserve = await getEthBalance(exchange.address)
       const formattedEthReserve = formatPrecision(fromWei(ethRerserve), 2)
       setEthReserve(formattedEthReserve)
 

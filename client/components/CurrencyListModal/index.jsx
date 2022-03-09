@@ -3,7 +3,7 @@ import { TransactionContext } from '../../context/TransactionContext'
 import { AiOutlineClose } from 'react-icons/ai'
 import CurrencyList from './CurrencyList'
 const styles = {
-  container: `absolute top-1/4 h-96 max-h-96 overflow-hidden inset-x-auto bg-[#191B1F] w-[40rem] rounded-2xl p-4 z-10 border border-[#4e5155] `,
+  container: `absolute top-1/4 h-96 max-h-96 overflow-hidden inset-x-auto bg-[#191B1F] w-[40rem] rounded-2xl p-4 z-20 border border-[#4e5155] `,
   header: `flex justify-between font-semibold my-2`,
 }
 const CurrencyListModal = () => {

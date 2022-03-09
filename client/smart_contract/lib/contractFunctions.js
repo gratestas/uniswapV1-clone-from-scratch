@@ -15,6 +15,11 @@ export const getTokenContract = (tokenAddress, signer) => {
   return new Contract(tokenAddress, ERC20.abi, signer)
 }
 
+export const getTokenBalance = async (tokenAddress, accountAddress, signer) => {
+  const token = getTokenContract(tokenAddress, signer)
+  return await token.balanceOf(accountAddress)
+}
+
 export const createExchange = async (tokenAddress, signer) => {
   const factory = getFactoryContract(signer)
   console.log('contractFunctions/createExchange: creating a new exchange')
@@ -119,7 +124,11 @@ export const swapTokens = async (amountIn, tokenPair, signer) => {
         'contractFunctions/swapTokens: minTokensOut',
         minTokenOut.toString()
       )
-      await exchange.ethToTokenSwap(minTokenOut, { value: amountIn })
+      const txResponse = await exchange.ethToTokenSwap(minTokenOut, {
+        value: amountIn,
+      })
+      const txReceipt = await txResponse.wait()
+      console.log('tx event:', txReceipt.events)
     } catch (error) {
       console.log(error)
     }

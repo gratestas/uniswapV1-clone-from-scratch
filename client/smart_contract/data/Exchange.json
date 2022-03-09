@@ -40,6 +40,49 @@
       "anonymous": false,
       "inputs": [
         {
+          "indexed": false,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountSold",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountPurchased",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "txType",
+          "type": "string"
+        }
+      ],
+      "name": "SwapTransfer",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
           "indexed": true,
           "internalType": "address",
           "name": "from",
@@ -417,7 +460,7 @@
         },
         {
           "internalType": "uint256",
-          "name": "_minAmountTokenToGet",
+          "name": "_minTokensPurchased",
           "type": "uint256"
         },
         {

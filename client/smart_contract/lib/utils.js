@@ -1,4 +1,5 @@
 import { providers, utils } from 'ethers'
+import { getTokenContract } from './contractFunctions'
 
 let eth
 
@@ -16,6 +17,12 @@ export const getSigner = (ethProvider = eth) => {
   return provider.getSigner()
 }
 
+export const getEthBalance = async (address) => {
+  console.log({ address })
+  const provider = getProvider(eth)
+  return await provider.getBalance(address)
+}
+
 export const toWei = (value) => utils.parseEther(value.toString())
 export const fromWei = (value) =>
   utils.formatEther(typeof value === 'string' ? value : value.toString())
@@ -27,11 +34,6 @@ export const parseUnits = (value, decimals) =>
   )
 export const formatUnits = (value, decimals) =>
   utils.formatUnits(value, decimals)
-
-export const getBalance = async (address) => {
-  const provider = getProvider(eth)
-  return await provider.getBalance(address)
-}
 
 export const formatPrecision = (value, decimal = 7) => {
   return value % 1
