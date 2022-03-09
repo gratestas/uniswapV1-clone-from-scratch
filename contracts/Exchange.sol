@@ -25,6 +25,15 @@ contract Exchange is ERC20 {
     address public factoryAddress;
     uint256 _fees = 1;
 
+    event SwapTransfer(
+        address from,
+        address to,
+        uint256 amountSold,
+        uint256 amountPurchased,
+        uint256 timestamp,
+        string txType
+    );
+
     constructor(address _token) ERC20("Muuswap-V1", "MUU-V1") {
         require(_token != address(0), "Invalid token address");
 
@@ -43,7 +52,6 @@ contract Exchange is ERC20 {
 
             uint256 liquidity = address(this).balance;
             _mint(msg.sender, liquidity);
-
             return liquidity;
         } else {
             uint256 ethReserve = address(this).balance - msg.value;
@@ -145,6 +153,14 @@ contract Exchange is ERC20 {
             "insufficient output amount of token"
         );
         IERC20(tokenAddress).transfer(_recipient, tokenPurchased);
+        emit SwapTransfer(
+            _recipient,
+            address(this),
+            msg.value,
+            tokenPurchased,
+            block.timestamp,
+            "Ether to Token"
+        );
     }
 
     function ethToTokenTransfer(uint256 _minTokenAmount, address _recipient)
@@ -179,11 +195,19 @@ contract Exchange is ERC20 {
             _tokensSold
         );
         payable(msg.sender).transfer(ethPurchased);
+        emit SwapTransfer(
+            msg.sender,
+            address(this),
+            _tokensSold,
+            ethPurchased,
+            block.timestamp,
+            "Token to Ether"
+        );
     }
 
     function tokenToTokenSwap(
         uint256 _tokensToSold,
-        uint256 _minAmountTokenToGet,
+        uint256 _minTokensPurchased,
         address _tokenAddress
     ) public {
         address exchangeAddress = IFactory(factoryAddress).getExchange(
@@ -206,8 +230,16 @@ contract Exchange is ERC20 {
             _tokensToSold
         );
         IExchange(exchangeAddress).ethToTokenTransfer{value: ethPurchased}(
-            _minAmountTokenToGet,
+            _minTokensPurchased,
             msg.sender
+        );
+        emit SwapTransfer(
+            msg.sender,
+            address(this),
+            _tokensToSold,
+            _minTokensPurchased,
+            block.timestamp,
+            "Token to Token"
         );
     }
 }
