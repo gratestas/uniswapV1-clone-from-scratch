@@ -10,7 +10,7 @@ const navItems = [
   { title: 'Swap', link: '/' },
   { title: 'Liquidity', link: '/liquidity' },
   { title: 'Pools', link: '/pools' },
-  { title: 'Charts', link: '/' },
+  { title: 'Transactions', link: '/transactions' },
 ]
 
 const Header = () => {
