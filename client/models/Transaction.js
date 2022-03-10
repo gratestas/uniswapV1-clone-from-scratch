@@ -1,11 +1,11 @@
 import mongoose from 'mongoose'
 
-export const transactionSchema = new mongoose.Schema({
+const transactionSchema = new mongoose.Schema({
   txHash: String,
   fromAddress: String,
   toAddress: String,
-  amountSold: Number,
-  amountPurchased: Number,
+  amountSold: String,
+  amountPurchased: String,
   timeStamp: Date,
 })
 
