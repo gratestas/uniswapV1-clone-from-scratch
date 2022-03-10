@@ -1,7 +1,7 @@
 import { connectToDatabase } from '../../util/mongoDB'
 import Transaction from '../../models/Transaction'
 
-export default handler = async (req, res) => {
+export default async (req, res) => {
   const { method } = req
 
   await connectToDatabase()
@@ -18,6 +18,7 @@ export default handler = async (req, res) => {
   }
 }
 
+// controllers
 const getTransactions = async (req, res) => {
   try {
     const transactions = await Transaction.find({})
@@ -27,4 +28,12 @@ const getTransactions = async (req, res) => {
   }
 }
 
-const addTransaction = async (req, res) => {}
+const addTransaction = async (req, res) => {
+  const transaction = req.body
+  try {
+    const newTransaction = await Transaction.create(transaction)
+    res.status(201).json({ success: true, data: newTransaction })
+  } catch (error) {
+    res.status(400).json({ succes: false, data: new Error(error).message })
+  }
+}
