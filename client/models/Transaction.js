@@ -10,5 +10,7 @@ const transactionSchema = new mongoose.Schema({
   timeStamp: Date,
 })
 
-const Transaction = mongoose.model('Transaction', transactionSchema)
+const Transaction =
+  mongoose.models.Transaction ||
+  mongoose.model('Transaction', transactionSchema)
 export default Transaction
