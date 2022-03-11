@@ -6,13 +6,16 @@ import {
   getAmountOut,
   swapTokens,
   getTokenBalance,
+  getTokenDecimal,
 } from '../../../smart_contract/lib/contractFunctions'
 import {
   fromWei,
-  getSigner,
   toWei,
-  formatPrecision,
+  getSigner,
   getEthBalance,
+  formatPrecision,
+  formatDate,
+  formatUnits,
 } from '../../../smart_contract/lib/utils'
 import CurrencySelectButton from '../../CurrencySelectButton'
 
@@ -39,7 +42,6 @@ const SwapForm = () => {
   }
   const handleChange = async (e) => {
     if (!Number(input.value)) return
-    console.log(input.value)
     const signer = getSigner(eth)
     console.log('handleChange', input.value)
     console.log('handleChange toWei', toWei(input.value).toString())
@@ -55,11 +57,55 @@ const SwapForm = () => {
   const handleSwap = async () => {
     const signer = getSigner(eth)
     console.log('handleSubmit: amount in:', input.value)
-    await swapTokens(toWei(input.value), tokenPair, signer)
+    const { txHash, txData } = await swapTokens(
+      toWei(input.value),
+      tokenPair,
+      signer
+    )
+    const decimalTokenIn = await getTokenDecimal(tokenPair.in.address, signer)
+    const decimalTokenOut = await getTokenDecimal(tokenPair.out.address, signer)
+
+    const amountSold_formatted = formatPrecision(
+      formatUnits(txData.amountSold, decimalTokenIn),
+      3
+    )
+    const amountPurchased_formatted = formatPrecision(
+      formatUnits(txData.amountPurchased, decimalTokenOut),
+      3
+    )
+
+    const transaction = {
+      _id: txHash,
+      txHash: txHash,
+      txType: txData.txType,
+      fromAddress: txData.from,
+      toAddress: txData.to,
+      timeStamp: Number(txData.timestamp.toString()),
+      amountSold: `${amountSold_formatted} ${tokenPair.in.symbol}`,
+      amountPurchased: `${amountPurchased_formatted} ${tokenPair.out.symbol}`,
+    }
+
+    console.log({ transaction })
+    await saveTransaction(transaction)
 
     console.log('transaction sucessfully completed')
     setInput({ value: 0 })
     setOutput('0.0')
+  }
+
+  const saveTransaction = async (transaction) => {
+    try {
+      await fetch('http://localhost:3000/api/transactions', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(transaction),
+      })
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   const getBalance = async (token, accountAddress) => {
