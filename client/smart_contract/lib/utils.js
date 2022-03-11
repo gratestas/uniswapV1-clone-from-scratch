@@ -40,3 +40,7 @@ export const formatPrecision = (value, decimal = 7) => {
     ? Number.parseFloat(value).toFixed(decimal)
     : Number.parseFloat(value).toFixed(0)
 }
+
+export const formatDate = (timestamp) => {
+  return new Date(Number(timestamp.toString()) * 1000).toLocaleString()
+}
