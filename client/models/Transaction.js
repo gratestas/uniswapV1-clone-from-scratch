@@ -3,11 +3,12 @@ import mongoose from 'mongoose'
 const transactionSchema = new mongoose.Schema({
   _id: String,
   txHash: String,
+  txType: String,
   fromAddress: String,
   toAddress: String,
   amountSold: String,
   amountPurchased: String,
-  timeStamp: Date,
+  timeStamp: Number,
 })
 
 const Transaction =
