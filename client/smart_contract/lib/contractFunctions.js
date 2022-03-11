@@ -20,6 +20,12 @@ export const getTokenBalance = async (tokenAddress, accountAddress, signer) => {
   return await token.balanceOf(accountAddress)
 }
 
+export const getTokenDecimal = async (tokenAddress, signer) => {
+  if (!tokenAddress) return 18
+  const token = getTokenContract(tokenAddress, signer)
+  return await token.decimals()
+}
+
 export const createExchange = async (tokenAddress, signer) => {
   const factory = getFactoryContract(signer)
   console.log('contractFunctions/createExchange: creating a new exchange')
@@ -111,6 +117,8 @@ export const getAmountOut = async (
 export const swapTokens = async (amountIn, tokenPair, signer) => {
   console.log('in swapTokens')
   let token, exchange, minTokenOut
+  let txResponse, txReceipt
+
   const tokenAddressIn = tokenPair.in.address
   const tokenAddressOut = tokenPair.out.address
 
@@ -124,11 +132,17 @@ export const swapTokens = async (amountIn, tokenPair, signer) => {
         'contractFunctions/swapTokens: minTokensOut',
         minTokenOut.toString()
       )
-      const txResponse = await exchange.ethToTokenSwap(minTokenOut, {
+      txResponse = await exchange.ethToTokenSwap(minTokenOut, {
         value: amountIn,
       })
-      const txReceipt = await txResponse.wait()
-      console.log('tx event:', txReceipt.events)
+      txReceipt = await txResponse.wait()
+      const txEvent = txReceipt.events.filter(
+        (el) => el.event === 'SwapTransfer'
+      )
+      const txHash = txEvent[0].transactionHash
+      const txData = txEvent[0].args
+      console.log({ txEvent })
+      return { txHash, txData }
     } catch (error) {
       console.log(error)
     }
@@ -141,7 +155,15 @@ export const swapTokens = async (amountIn, tokenPair, signer) => {
       minTokenOut = await exchange.ethAmountPurchased(amountIn)
 
       await token.approve(exchange.address, amountIn)
-      await exchange.tokenToEthSwap(amountIn, minTokenOut)
+      txResponse = await exchange.tokenToEthSwap(amountIn, minTokenOut)
+      txReceipt = await txResponse.wait()
+      const txEvent = txReceipt.events.filter(
+        (el) => el.event === 'SwapTransfer'
+      )
+      const txHash = txEvent[0].transactionHash
+      const txData = txEvent[0].args
+
+      return { txHash, txData }
     } catch (error) {
       console.log(error)
     }
@@ -158,11 +180,18 @@ export const swapTokens = async (amountIn, tokenPair, signer) => {
       signer
     )
     console.log({ minTokenOut })
-    await exchange.tokenToTokenSwap(
+    txResponse = await exchange.tokenToTokenSwap(
       amountIn,
       parseUnits(minTokenOut, decimals),
       tokenAddressOut
     )
+    txReceipt = await txResponse.wait()
+    const txEvent = txReceipt.events.filter((el) => el.event === 'SwapTransfer')
+
+    const txHash = txEvent[0].transactionHash
+    const txData = txEvent[0].args
+
+    return { txHash, txData }
   }
 }
 
