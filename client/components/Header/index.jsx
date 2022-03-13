@@ -36,7 +36,13 @@ const Header = () => {
                 activeNav === item.title && styles.activeNavItem
               }`}
             >
-              <Link href={item.link}>
+              <Link
+                href={
+                  item.title === 'Transactions'
+                    ? `${item.link}/${currentAccount}`
+                    : item.link
+                }
+              >
                 <a onClick={() => setActiveNav(item.title)}>{item.title}</a>
               </Link>
             </div>
