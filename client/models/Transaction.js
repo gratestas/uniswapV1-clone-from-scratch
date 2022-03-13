@@ -1,7 +1,6 @@
 import mongoose from 'mongoose'
 
-const transactionSchema = new mongoose.Schema({
-  _id: String,
+const TransactionSchema = new mongoose.Schema({
   txHash: String,
   txType: String,
   fromAddress: String,
@@ -13,5 +12,5 @@ const transactionSchema = new mongoose.Schema({
 
 const Transaction =
   mongoose.models.Transaction ||
-  mongoose.model('Transaction', transactionSchema)
+  mongoose.model('Transaction', TransactionSchema)
 export default Transaction

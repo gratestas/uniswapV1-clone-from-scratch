@@ -1,15 +1,15 @@
 import mongoose from 'mongoose'
 
-const userSchema = new mongoose.Schema({
+const UserSchema = new mongoose.Schema({
   _id: String,
   address: String,
   transactions: [
     {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: 'Transaction',
     },
   ],
 })
 
-const User = mongoose.models.User || mongoose.model('User', userSchema)
+const User = mongoose.models.User || mongoose.model('User', UserSchema)
 export default User
