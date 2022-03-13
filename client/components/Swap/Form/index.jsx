@@ -75,7 +75,6 @@ const SwapForm = () => {
     )
 
     const transaction = {
-      _id: txHash,
       txHash: txHash,
       txType: txData.txType,
       fromAddress: txData.from,
@@ -95,7 +94,7 @@ const SwapForm = () => {
 
   const saveTransaction = async (transaction) => {
     try {
-      await fetch('http://localhost:3000/api/transactions', {
+      await fetch(`http://localhost:3000/api/transactions/${currentAccount}`, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
