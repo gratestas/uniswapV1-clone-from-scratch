@@ -8,10 +8,10 @@ export default async (req, res) => {
 
   switch (method) {
     case 'GET':
-      Transaction.getByUserId(req, res)
+      await Transaction.getByUserId(req, res)
       break
     case 'POST':
-      Transaction.add(req, res)
+      await Transaction.add(req, res)
       break
     default:
       res.status(400).json({ success: false })
