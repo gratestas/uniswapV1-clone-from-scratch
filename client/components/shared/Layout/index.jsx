@@ -9,12 +9,12 @@ const styles = {
 }
 
 const Layout = ({ children }) => {
-  const { isCurrencyListOpen } = useContext(TransactionContext)
+  const { isCurrencyListOpen, isActive } = useContext(TransactionContext)
   return (
     <div className={styles.wrapper}>
       <Header />
       <div className={styles.wrapperInner}>{children}</div>
-      {isCurrencyListOpen && <Overlay />}
+      {(isCurrencyListOpen || isActive) && <Overlay />}
     </div>
   )
 }
