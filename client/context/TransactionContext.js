@@ -2,8 +2,6 @@ import { useState, useEffect, createContext } from 'react'
 import { getSigner } from '../smart_contract/lib/utils'
 import { getFactoryContract } from '../smart_contract/lib/contractFunctions.js'
 
-import ethLogo from '../assets/eth.png'
-
 export const TransactionContext = createContext()
 
 let eth
@@ -13,12 +11,11 @@ if (typeof window !== 'undefined') {
 
 export const TransactionProvider = ({ children }) => {
   const [factory, setFactory] = useState()
-  const [tokenPair, setTokenPair] = useState({
-    in: '',
-    out: '',
-  })
+  const [tokenPair, setTokenPair] = useState({ in: '', out: '' })
   const [tradeSide, setTradeSide] = useState()
   const [isCurrencyListOpen, setIsCurrencyListOpen] = useState(false)
+  const [isActive, setIsActive] = useState(false)
+  const [doesExchangeExist, setDoesExchangeExist] = useState(false)
 
   useEffect(() => {
     loadBlockchainData()
@@ -39,6 +36,10 @@ export const TransactionProvider = ({ children }) => {
         factory,
         isCurrencyListOpen,
         setIsCurrencyListOpen,
+        isActive,
+        setIsActive,
+        doesExchangeExist,
+        setDoesExchangeExist,
         tokenPair,
         setTokenPair,
         tradeSide,
