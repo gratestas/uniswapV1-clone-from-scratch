@@ -14,12 +14,12 @@ import {
   getSigner,
   getEthBalance,
   formatPrecision,
-  formatDate,
   formatUnits,
 } from '../../../smart_contract/lib/utils'
 import CurrencySelectButton from '../../CurrencySelectButton'
+import TransactionModal from '../../shared/TransactionModal'
 
-import { styles } from './styles'
+import styles from './styles'
 let eth
 
 if (typeof window !== 'undefined') {
@@ -33,6 +33,9 @@ const SwapForm = () => {
   const [output, setOutput] = useState('0.0')
   const [tokenInBalance, setTokenInBalance] = useState(0)
   const [tokenOutBalance, setTokenOutBalance] = useState(0)
+  const [isOpen, setIsOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [message, setMessage] = useState('Transaction in process...')
 
   const switchPair = () => {
     setTokenPair({
@@ -55,6 +58,8 @@ const SwapForm = () => {
   }
 
   const handleSwap = async () => {
+    setIsOpen(true)
+    setIsLoading(true)
     const signer = getSigner(eth)
     console.log('handleSubmit: amount in:', input.value)
     const { txHash, txData } = await swapTokens(
@@ -62,6 +67,13 @@ const SwapForm = () => {
       tokenPair,
       signer
     )
+    if (!txHash) {
+      setIsLoading(false)
+      setIsOpen(false)
+      return
+    }
+    setIsLoading(false)
+
     const decimalTokenIn = await getTokenDecimal(tokenPair.in.address, signer)
     const decimalTokenOut = await getTokenDecimal(tokenPair.out.address, signer)
 
@@ -87,7 +99,10 @@ const SwapForm = () => {
     console.log({ transaction })
     await saveTransaction(transaction)
 
-    console.log('transaction sucessfully completed')
+    setMessage('Transaction sucessfully completed!')
+    setTimeout(() => {
+      setIsOpen(false)
+    }, 2000)
     setInput({ value: 0 })
     setOutput('0.0')
   }
@@ -171,6 +186,11 @@ const SwapForm = () => {
       <div className={styles.confirmButton} onClick={handleSwap}>
         Confirm
       </div>
+      <TransactionModal
+        isOpen={isOpen}
+        isLoading={isLoading}
+        message={message}
+      />
     </div>
   )
 }
