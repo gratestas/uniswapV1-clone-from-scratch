@@ -1,4 +1,4 @@
-export const styles = {
+export default {
   container: `h-96 w-[90rem] rounded-2xl bg-[#191B1F] px-8 py-4`,
   table: `table-auto divide-y divide-gray-700 w-full`,
   thead: ``,
