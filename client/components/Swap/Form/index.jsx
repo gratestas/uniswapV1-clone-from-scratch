@@ -45,6 +45,7 @@ const SwapForm = () => {
     })
   }
   const handleChange = async (e) => {
+    if (!tokenPair.in) return
     if (!Number(input.value)) return
     const signer = getSigner(eth)
     console.log('handleChange', input.value)

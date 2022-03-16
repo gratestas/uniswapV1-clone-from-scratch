@@ -1,24 +1,15 @@
-import Link from 'next/link'
 import { useEffect, useState, useContext } from 'react'
-import { useRouter } from 'next/router'
+import Image from 'next/image'
 import { AiOutlineDown } from 'react-icons/ai'
 import { HiOutlineDotsVertical } from 'react-icons/hi'
-import ethLogo from '../../assets/eth.png'
-import Image from 'next/image'
-import { styles } from './styles'
+
 import { WalletContext } from '../../context/WalletContext'
-const navItems = [
-  { title: 'swap', link: '/' },
-  { title: 'liquidity', link: '/liquidity' },
-  { title: 'pools', link: '/pools' },
-  { title: 'transactions', link: '/transactions' },
-]
+import NavList from './NavList'
+import styles from './styles'
+import ethLogo from '../../assets/eth.png'
 
 const Header = () => {
-  const router = useRouter()
-
   const { currentAccount, connectWallet } = useContext(WalletContext)
-  const [activeNav, setActiveNav] = useState('path')
   const [userName, setUserName] = useState()
 
   useEffect(() => {
@@ -27,34 +18,11 @@ const Header = () => {
     setUserName(`${currentAccount.slice(0, 6)}...${currentAccount.slice(38)}`)
   }, [currentAccount])
 
-  useEffect(() => {
-    const path = router.asPath.substring(1)
-    setActiveNav(path)
-  }, [])
   return (
     <header className={styles.wrapper}>
       <div className={styles.headerLogo}>Muuswap</div>
       <div className={styles.nav}>
-        <div className={styles.navItemsContainer}>
-          {navItems.map((item, index) => (
-            <div
-              key={index}
-              className={`${styles.navItem} ${
-                activeNav === item.title && styles.activeNavItem
-              }`}
-            >
-              <Link
-                href={
-                  item.title === 'Transactions'
-                    ? `${item.link}/${currentAccount}`
-                    : item.link
-                }
-              >
-                <a onClick={() => setActiveNav(item.title)}>{item.title}</a>
-              </Link>
-            </div>
-          ))}
-        </div>
+        <NavList currentAccount={currentAccount} />
       </div>
       <div className={`${styles.buttonContainer}`}>
         <div className={`${styles.button} ${styles.buttonPadding}`}>
