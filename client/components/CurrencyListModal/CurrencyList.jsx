@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import { useContext, useState } from 'react'
 import tokens from '../../smart_contract/lib/constants/tokens'
-import { styles } from './styles'
+import styles from './styles'
 
 import SearchInput from '../shared/SearchInput'
 import { TransactionContext } from '../../context/TransactionContext'
