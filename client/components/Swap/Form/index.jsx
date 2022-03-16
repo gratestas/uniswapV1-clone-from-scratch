@@ -27,7 +27,8 @@ if (typeof window !== 'undefined') {
 }
 
 const SwapForm = () => {
-  const { tokenPair, setTokenPair } = useContext(TransactionContext)
+  const { tokenPair, setTokenPair, setIsActive } =
+    useContext(TransactionContext)
   const { currentAccount } = useContext(WalletContext)
   const [input, setInput] = useState({ value: 0 })
   const [output, setOutput] = useState('0.0')
@@ -60,6 +61,7 @@ const SwapForm = () => {
   const handleSwap = async () => {
     setIsOpen(true)
     setIsLoading(true)
+    setIsActive(true)
     const signer = getSigner(eth)
     console.log('handleSubmit: amount in:', input.value)
     const { txHash, txData } = await swapTokens(
@@ -70,6 +72,7 @@ const SwapForm = () => {
     if (!txHash) {
       setIsLoading(false)
       setIsOpen(false)
+      setIsActive(false)
       return
     }
     setIsLoading(false)
@@ -102,6 +105,7 @@ const SwapForm = () => {
     setMessage('Transaction sucessfully completed!')
     setTimeout(() => {
       setIsOpen(false)
+      setIsActive(false)
     }, 2000)
     setInput({ value: 0 })
     setOutput('0.0')
