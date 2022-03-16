@@ -66,7 +66,7 @@ const CreateExchangeModal = () => {
         <>
           {!isLoading && (
             <div className={styles.wrapper}>
-              <div className="mb-10">{message}</div>
+              <div className="mt-16 mb-10">{message}</div>
               <div
                 className={styles.confirmButton}
                 onClick={createExchangeHandler}
