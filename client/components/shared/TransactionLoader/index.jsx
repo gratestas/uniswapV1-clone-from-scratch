@@ -1,9 +1,10 @@
 import { css } from '@emotion/react'
 import { MoonLoader } from 'react-spinners'
+import { BsCheckCircle } from 'react-icons/bs'
 
 const style = {
-  wrapper: `text-white h-full w-[30rem] flex flex-col justify-center items-center border border-[#3a3a3a] rounded-xl`,
-  title: `font-semibold text-xl mb-12`,
+  wrapper: `text-white h-full w-full flex flex-col items-center border border-[#3a3a3a] rounded-xl`,
+  title: `font-semibold text-xl mt-16 mb-16`,
 }
 
 const cssOverride = css`
@@ -21,8 +22,15 @@ const TransactionLoader = ({ message, isLoading }) => {
         color={'#4E96F1'}
         loading={isLoading}
         css={cssOverride}
-        size={50}
+        size={60}
       />
+      {!isLoading && (
+        <div>
+          <BsCheckCircle
+            style={{ width: '8rem', height: '8rem', color: 'green' }}
+          />
+        </div>
+      )}
     </div>
   )
 }
