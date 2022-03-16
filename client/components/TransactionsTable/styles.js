@@ -1,5 +1,5 @@
 export const styles = {
-  container: `h-96 w-[90rem] rounded-2xl bg-[#191B1F] px-8 py-4`,
+  container: ` min-h-96 max-h-fit w-[90rem] rounded-2xl bg-[#191B1F] px-8 py-4`,
   table: `table-auto divide-y divide-gray-700 w-full`,
   thead: ``,
   thead_item: `text-left py-3 text-gray-400 font-normal text-md tracking-wide last:w-[9rem]`,
