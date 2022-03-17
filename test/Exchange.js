@@ -25,6 +25,8 @@ const createExchange = async (factory, tokenAddress, sender) => {
 
 describe("Exchange", () => {
   let owner, user, exchange;
+  let actualDifference, expectedDifference;
+  const tolerance = 0.0001;
 
   beforeEach(async () => {
     [owner, user] = await ethers.getSigners();
@@ -67,6 +69,7 @@ describe("Exchange", () => {
       });
       it("adds additional liquidity at the current exchange rate", async () => {
         await exchange.addLiquidity(toWei(200), { value: toWei(2) });
+
         const exchangeEthBalance = await getBalance(exchange.address);
         expect(exchangeEthBalance).to.equal(toWei(12));
 
@@ -97,23 +100,18 @@ describe("Exchange", () => {
     it("removes some liquidity", async () => {
       const userEthBalanceBefore = await getBalance(owner.address);
       const userTokenBalanceBefore = await token.balanceOf(owner.address);
-      //console.log("userEthBalanceBexfore", fromWei(userEthBalanceBefore));
-      //console.log("userTokenBalanceBefore", fromWei(userTokenBalanceBefore));
       await exchange.removeLiquidity(toWei(25));
 
       expect(await exchange.getReserve()).to.equal(toWei(150));
       expect(await getBalance(exchange.address)).to.equal(toWei(75));
 
       const userEthBalanceAfter = await getBalance(owner.address);
-      //console.log("userEthBalanceAfter", fromWei(userEthBalanceAfter));
-
       const userTokenBalanceAfter = await token.balanceOf(owner.address);
-      //console.log("userTokenBalanceAfter", fromWei(userTokenBalanceAfter));
 
-      expect(fromWei(userEthBalanceAfter.sub(userEthBalanceBefore))).to.equal(
-        "24.999934722436531782"
-      ); // 25 - gas fees
+      expectedDifference = 24.999934722436531782; // 25 - gas fees
+      actualDifference = fromWei(userEthBalanceAfter.sub(userEthBalanceBefore));
 
+      expect(actualDifference - expectedDifference).to.be.most(tolerance);
       expect(
         fromWei(userTokenBalanceAfter.sub(userTokenBalanceBefore))
       ).to.equal("50.0");
@@ -128,24 +126,20 @@ describe("Exchange", () => {
 
       const userEthBalanceBefore = await getBalance(user.address);
 
-      // A user swaps 10 ethers and expects to get at least 18 tokens in exchange
+      // owner swaps 10 ethers and expects to get at least 18 tokens in exchange
       const tokensOut = fromWei(await exchange.tokenAmountPurchased(toWei(10)));
+
       const slippage = 0.99;
-      console.log(
-        "token amount out in exchange of 10 ethers",
-        tokensOut.toString()
-      );
       const tokensOut_min = tokensOut * slippage;
+
       await exchange
         .connect(user)
         .ethToTokenSwap(toWei(tokensOut_min), { value: toWei(10) });
 
       const userEthBalanceAfter = await getBalance(user.address);
-      const actualDifference = fromWei(
-        userEthBalanceBefore.sub(userEthBalanceAfter)
-      );
-      const expectedDifference = 10;
-      const tolerance = 0.0001;
+
+      expectedDifference = 10;
+      actualDifference = fromWei(userEthBalanceBefore.sub(userEthBalanceAfter));
       expect(actualDifference - expectedDifference).to.be.most(tolerance);
 
       const userTokenBalance = await token.balanceOf(user.address);
@@ -163,9 +157,11 @@ describe("Exchange", () => {
       const ownerEtherBalanceAfter = await getBalance(owner.address);
       const ownerTokenBalanceAfter = await token.balanceOf(owner.address);
 
-      expect(
-        fromWei(ownerEtherBalanceAfter.sub(ownerEtherBalanceBefore))
-      ).to.equal("109.999948428332725665");
+      expectedDifference = 109.999948428332725665; // 25 - gas fees
+      actualDifference = fromWei(
+        ownerEtherBalanceAfter.sub(ownerEtherBalanceBefore)
+      );
+      expect(actualDifference - expectedDifference).to.be.most(tolerance);
 
       expect(
         fromWei(ownerTokenBalanceAfter.sub(ownerTokenBalanceBefore))
@@ -235,25 +231,25 @@ describe("Exchange", () => {
 
       const userBalanceAfter = await getBalance(user.address);
 
-      expect(fromWei(userBalanceBefore - userBalanceAfter)).to.equal(
-        "1.0000637154788639"
-      );
+      expectedDifference = 1.0000637154788639;
+      actualDifference = fromWei(userBalanceBefore - userBalanceAfter);
+      expect(actualDifference - expectedDifference).to.be.most(tolerance);
     });
 
     it("transfers at least min amount of tokens ", async () => {
       //user's balance of ether before swap transaction
       const userBalanceBefore = await getBalance(user.address);
-      const txResponse = await exchange
+      await exchange
         .connect(user)
         .ethToTokenSwap(toWei(45), { value: toWei(1) });
-      const txReceipt = await txResponse.wait();
-      console.log(txReceipt.events);
+
       //user's balance of ether after swap transaction
       const userBalanceAfter = await getBalance(user.address);
 
-      expect(fromWei(userBalanceBefore - userBalanceAfter)).to.equal(
-        "1.0000637030133924"
-      );
+      expectedDifference = 1.0000637030133924;
+      actualDifference = fromWei(userBalanceBefore - userBalanceAfter);
+
+      expect(actualDifference - expectedDifference).to.be.most(tolerance);
 
       const userTokenBalance = await token.balanceOf(user.address);
       expect(fromWei(userTokenBalance)).to.eq("45.04094631483166515");
@@ -285,16 +281,12 @@ describe("Exchange", () => {
     it("transfers at least min amount of ether", async () => {
       const userBalanceBefore = await getBalance(user.address);
 
-      const tx = await exchange
-        .connect(user)
-        .tokenToEthSwap(toWei(10), toWei(0.19));
+      await exchange.connect(user).tokenToEthSwap(toWei(10), toWei(0.19));
       const userBalanceAfter = await getBalance(user.address);
-      const receipt = await tx.wait();
-      console.log("exchange address", await exchange.address);
-      console.log("event agrs", receipt.events[2].args);
-      expect(fromWei(userBalanceAfter - userBalanceBefore)).to.equal(
-        "0.1941037668200612"
-      );
+
+      expectedDifference = 0.1941037668200612;
+      actualDifference = fromWei(userBalanceAfter - userBalanceBefore);
+      expect(actualDifference - expectedDifference).to.be.most(tolerance);
 
       const userTokenBalance = await token.balanceOf(user.address);
       expect(fromWei(userTokenBalance)).to.equal("0.0");
@@ -327,9 +319,10 @@ describe("Exchange", () => {
         .ethToTokenTransfer(toWei(1.97), user.address, { value: toWei(1) });
 
       const userBalanceAfter = await getBalance(user.address);
-      expect(fromWei(userBalanceBefore.sub(userBalanceAfter))).to.equal(
-        "1.000064190344631172"
-      );
+
+      expectedDifference = 1.000064190344631172;
+      actualDifference = fromWei(userBalanceBefore.sub(userBalanceAfter));
+      expect(actualDifference - expectedDifference).to.be.most(tolerance);
 
       const userTokenBalance = await token.balanceOf(user.address);
       expect(fromWei(userTokenBalance)).to.equal("1.978041738678708079");
@@ -360,21 +353,15 @@ describe("Exchange", () => {
       );
       await token2.deployed();
 
+      // creating instances of exchange contract
       const exchange1 = await createExchange(factory, token1.address, owner);
       const exchange2 = await createExchange(factory, token2.address, user);
 
-      console.log(
-        "exchange1 reserve:",
-        (await exchange1.getReserve()).toString()
-      );
-      console.log(
-        "exchange2 reserve:",
-        (await exchange2.getReserve()).toString()
-      );
-
+      // approving exchange 1 to add 2000 of token1 to the liquidity on behalf of owner
       await token1.approve(exchange1.address, toWei(2000));
       await exchange1.addLiquidity(toWei(2000), { value: toWei(1000) });
 
+      // approving exchange 2 to add 1000 of token2 to the liquidity on behalf of user
       await token2.connect(user).approve(exchange2.address, toWei(1000));
       await exchange2
         .connect(user)
@@ -383,32 +370,34 @@ describe("Exchange", () => {
       expect(await token2.balanceOf(owner.address)).to.eq(0);
 
       await token1.approve(exchange1.address, toWei(10));
+
+      // ether amount out of exchange1 that will be passed to exchange2
       const ethInExchange2 = fromWei(
         await exchange1.ethAmountPurchased(toWei(10))
       );
+
+      // recalculated ether amount out of exchange1 that will be passed to exchange2
+      // due to slippage
       const slippage = 0.99;
-      console.log(
-        "ether amount out of exchange1 that will be passed to exchange2",
-        ethInExchange2.toString()
-      );
       const ethInExchange2_min = ethInExchange2 * slippage;
 
+      // token amount purchased from exchange 2 in exchange of eth amount coming out from exchange 1
       const tokensOutExchange2 = fromWei(
         await exchange2.tokenAmountPurchased(toWei(ethInExchange2_min))
       );
-      console.log(
-        "token amount out of exchange2 in exchange of ether amount out of exchange1",
-        tokensOutExchange2.toString()
-      );
+
+      // recalculated ether amount out of exchange1 that will be passed to exchange2
+      // due to slippage
       const tokensOutExchange2_min = tokensOutExchange2 * slippage;
 
-      const txResponse = await exchange1.tokenToTokenSwap(
+      // user calls swap function with
+      // amount of token to sold, min expected amount of token to receive
+      // and address of token to receive passed in
+      await exchange1.tokenToTokenSwap(
         toWei(10),
         toWei(tokensOutExchange2_min),
         token2.address
       );
-      const txReceipt = await txResponse.wait();
-      console.log(txReceipt.events);
 
       const ownerBalance = await token2.balanceOf(owner.address);
       expect(fromWei(ownerBalance)).to.eq("4.852698493489877956");
