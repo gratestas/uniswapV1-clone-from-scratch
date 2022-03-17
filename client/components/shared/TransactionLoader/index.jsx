@@ -3,7 +3,7 @@ import { MoonLoader } from 'react-spinners'
 import { BsCheckCircle } from 'react-icons/bs'
 
 const style = {
-  wrapper: `text-white h-full w-full flex flex-col items-center border border-[#3a3a3a] rounded-xl`,
+  wrapper: `text-white h-full w-full ml-5 flex flex-col items-center  rounded-xl`,
   title: `font-semibold text-xl mt-16 mb-16`,
 }
 
