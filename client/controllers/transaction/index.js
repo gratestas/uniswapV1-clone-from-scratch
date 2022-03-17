@@ -4,9 +4,15 @@ import User from '../../models/User'
 module.exports = {
   getByUserId: async (req, res) => {
     const id = req.query.userId
+    let user
     try {
-      const user = await User.findById(id).populate('transactions')
-      res.status(200).json({ success: true, data: user.transactions })
+      const doesUserExist = await User.exists({ _id: id })
+      if (doesUserExist) {
+        user = await User.findById(id).populate('transactions')
+        res.status(200).json({ success: true, data: user.transactions })
+      } else {
+        res.status(200).json({ success: true, data: null })
+      }
     } catch (error) {
       res.status(400).json({ success: false, data: error.message })
     }

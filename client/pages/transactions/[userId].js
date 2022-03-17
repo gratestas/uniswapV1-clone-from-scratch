@@ -5,9 +5,15 @@ import User from '../../models/User'
 const TransactionHistory = ({ transactions }) => {
   console.log({ transactions })
   return (
-    <div className="flex flex-col items-center space-y-5">
-      <TransactionsTable transactions={transactions} />
-    </div>
+    <>
+      {transactions ? (
+        <div className="flex flex-col items-center space-y-5">
+          <TransactionsTable transactions={transactions} />
+        </div>
+      ) : (
+        <div>You have not done any transactions yet</div>
+      )}
+    </>
   )
 }
 
