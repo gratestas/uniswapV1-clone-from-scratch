@@ -40,9 +40,11 @@ const CurrencySelectButton = ({
           )}
         </div>
       ) : (
-        <div className={`${styles.currencySelectorContent} w-[20rem] `}>
-          <div className="ml-1 ">Select Token</div>
-          <AiOutlineDown className={styles.currencySelectorArrow} />
+        <div className=" w-[14rem]">
+          <div className={`${styles.currencySelectorContent}`}>
+            <div className="ml-2">Select Token</div>
+            <AiOutlineDown className={styles.currencySelectorArrow} />
+          </div>
         </div>
       )}
     </div>
