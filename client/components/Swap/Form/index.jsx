@@ -114,7 +114,7 @@ const SwapForm = () => {
 
   const saveTransaction = async (transaction) => {
     try {
-      await fetch(`http://localhost:3000/api/transactions/${currentAccount}`, {
+      await fetch(`/api/transactions/${currentAccount}`, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
