@@ -1,4 +1,7 @@
 {
+  "name": "muuswap-decentralized-exchange",
+  "version": "1.0.0",
+  "description": "Muuswap Interface",
   "private": true,
   "scripts": {
     "dev": "next dev",
