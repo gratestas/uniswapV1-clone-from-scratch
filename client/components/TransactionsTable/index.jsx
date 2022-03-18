@@ -56,9 +56,12 @@ const TransactionsTable = ({ transactions }) => {
                   {formatDate(tx.timeStamp)}
                 </td>
                 <td scope="col" className={styles.tbody_item}>
-                  <Link href={`https://rinkeby.etherscan.io/tx/${tx.txHash}`}>
-                    <a>View on Etherscan</a>
-                  </Link>
+                  <a
+                    href={`https://rinkeby.etherscan.io/tx/${tx.txHash}`}
+                    target="_blank"
+                  >
+                    View on Etherscan
+                  </a>
                 </td>
               </tr>
             ))}
