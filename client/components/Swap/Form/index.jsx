@@ -76,6 +76,7 @@ const SwapForm = () => {
       setIsActive(false)
       return
     }
+    setMessage('Transaction sucessfully completed!')
     setIsLoading(false)
 
     const decimalTokenIn = await getTokenDecimal(tokenPair.in.address, signer)
@@ -103,7 +104,6 @@ const SwapForm = () => {
     console.log({ transaction })
     await saveTransaction(transaction)
 
-    setMessage('Transaction sucessfully completed!')
     setTimeout(() => {
       setIsOpen(false)
       setIsActive(false)
