@@ -1,6 +1,7 @@
 import TransactionsTable from '../../components/TransactionsTable/index.jsx'
 import { connectToDatabase } from '../../util/mongoDB'
 import User from '../../models/User'
+import Transaction from '../../models/Transaction'
 
 const TransactionHistory = ({ transactions }) => {
   console.log({ transactions })
@@ -19,37 +20,23 @@ const TransactionHistory = ({ transactions }) => {
 
 export default TransactionHistory
 
-export async function getStaticPaths() {
-  //connect to db
-  await connectToDatabase()
-  // returns an array of all existing users with only selected field name
-  const users = await User.find().select('_id')
-
-  const paths = users.map((user) => ({
-    params: { userId: user._id },
-  }))
-
-  return {
-    paths,
-    fallback: true,
-  }
-}
-
-export async function getStaticProps({ params }) {
+export async function getServerSideProps({ params }) {
   const { userId } = params
-  const dev = process.env.NODE_ENV !== 'production'
-  const { DEV_URL, PROD_URL } = process.env
 
-  // request transactions from api
-  const res = await fetch(
-    `${dev ? DEV_URL : PROD_URL}/api/transactions/${userId}`
-  )
+  await connectToDatabase()
 
-  const { data } = await res.json()
+  const doesUserExist = await User.exists({ _id: userId })
+  let transactions
+  if (doesUserExist) {
+    const user = await User.findById(userId).populate('transactions')
+    transactions = user.transactions
+  } else {
+    transcations = null
+  }
 
   return {
     props: {
-      transactions: data,
+      transactions: JSON.parse(JSON.stringify(transactions)),
     },
   }
 }
