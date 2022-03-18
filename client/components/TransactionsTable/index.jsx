@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { formatDate } from '../../smart_contract/lib/utils'
 import { styles } from './styles'
 
@@ -55,7 +56,9 @@ const TransactionsTable = ({ transactions }) => {
                   {formatDate(tx.timeStamp)}
                 </td>
                 <td scope="col" className={styles.tbody_item}>
-                  View on Etherscan
+                  <Link href={`https://rinkeby.etherscan.io/tx/${tx.txHash}`}>
+                    <a>View on Etherscan</a>
+                  </Link>
                 </td>
               </tr>
             ))}
