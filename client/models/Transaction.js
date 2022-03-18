@@ -10,7 +10,6 @@ const TransactionSchema = new mongoose.Schema({
   timeStamp: Number,
 })
 
-const Transaction =
-  mongoose.models.Transaction ||
-  mongoose.model('Transaction', TransactionSchema)
-export default Transaction
+global.Transaction =
+  global.Transaction || mongoose.model('Transaction', TransactionSchema)
+export default global.Transaction

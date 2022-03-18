@@ -12,5 +12,5 @@ const UserSchema = new mongoose.Schema({
   ],
 })
 
-const User = mongoose.models.User || mongoose.model('User', UserSchema)
-export default User
+global.User = global.User || mongoose.model('User', UserSchema)
+export default global.User
