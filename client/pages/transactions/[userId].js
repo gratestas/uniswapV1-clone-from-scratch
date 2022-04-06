@@ -4,7 +4,6 @@ import User from '../../models/User'
 import Transaction from '../../models/Transaction'
 
 const TransactionHistory = ({ transactions }) => {
-  console.log({ transactions })
   return (
     <>
       {transactions ? (
@@ -17,7 +16,6 @@ const TransactionHistory = ({ transactions }) => {
     </>
   )
 }
-
 export default TransactionHistory
 
 export async function getServerSideProps({ params }) {
@@ -29,14 +27,14 @@ export async function getServerSideProps({ params }) {
   let transactions
   if (doesUserExist) {
     const user = await User.findById(userId).populate('transactions')
-    transactions = user.transactions
+    transactions = JSON.parse(JSON.stringify(user.transactions))
   } else {
-    transcations = null
+    transactions = null
   }
 
   return {
     props: {
-      transactions: JSON.parse(JSON.stringify(transactions)),
+      transactions,
     },
   }
 }
