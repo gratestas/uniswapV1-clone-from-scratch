@@ -10,6 +10,7 @@ export const WalletProvider = ({ children }) => {
 
   useEffect(async () => {
     isMetamaskInstalled()
+    checkIfAccountConnected()
     let chainId = await ethereum.request({ method: 'eth_chainId' })
     if (chainId !== RINKEBY_CHAIN_ID) connectCorrectNetwork()
 
@@ -37,6 +38,12 @@ export const WalletProvider = ({ children }) => {
     chainId === RINKEBY_CHAIN_ID
       ? setIsChainIdCorrect(true)
       : setIsChainIdCorrect(false)
+  }
+
+  const checkIfAccountConnected = async () => {
+    const account = await getAccount()
+    if (!account) return
+    setCurrentAccount(account)
   }
 
   const connectCorrectNetwork = async () => {
