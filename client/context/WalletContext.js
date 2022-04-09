@@ -8,6 +8,7 @@ export const WalletProvider = ({ children }) => {
   useEffect(() => {
     isMetamaskInstalled()
     checkIfAccountConnected()
+    checkCorrectNetwork()
     window.ethereum.on('accountsChanged', handleAccountChanged)
   }, [])
 
@@ -55,12 +56,18 @@ export const WalletProvider = ({ children }) => {
     console.log('Connected to chain:' + chainId)
 
     const rinkebyChainId = '0x4'
+    if (chainId !== rinkebyChainId) setCorrectNetwork()
+  }
 
-    if (chainId !== rinkebyChainId) {
-      setCorrectNetwork(false)
-    } else {
-      setCorrectNetwork(true)
-    }
+  const setCorrectNetwork = async () => {
+    await window.ethereum.request({
+      method: 'wallet_switchEthereumChain',
+      params: [
+        {
+          chainId: `0x${Number(4).toString(16)}`,
+        },
+      ],
+    })
   }
 
   return (
