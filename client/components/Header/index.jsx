@@ -30,7 +30,7 @@ const Header = () => {
             <Image src={ethLogo} alt="eth logo" height={20} width={20} />
           </div>
 
-          <p>Ethereum</p>
+          <p>Rinkeby</p>
 
           <div className={styles.buttonIconContainer}>
             <AiOutlineDown />
